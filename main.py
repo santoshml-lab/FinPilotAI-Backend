@@ -118,7 +118,7 @@ Rules:
 """
 
     response = groq_client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        MODEL = "openai/gpt-oss-20b"
         messages=[
             {
                 "role": "user",
