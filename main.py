@@ -6,6 +6,9 @@ from pydantic import BaseModel
 from groq import Groq
 
 
+MODEL = "openai/gpt-oss-20b"
+
+
 app = FastAPI(
     title="FinPilot AI + SupportFlow AI Backend",
     description="AI-powered finance and customer support API",
@@ -63,7 +66,7 @@ Keep the response under 120 words.
 """
 
     response = groq_client.chat.completions.create(
-        MODEL = "openai/gpt-oss-20b",
+        model=MODEL,
         messages=[
             {
                 "role": "user",
@@ -118,7 +121,7 @@ Rules:
 """
 
     response = groq_client.chat.completions.create(
-        MODEL = "openai/gpt-oss-20b",
+        model=MODEL,
         messages=[
             {
                 "role": "user",
