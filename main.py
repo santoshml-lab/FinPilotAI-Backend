@@ -7,9 +7,9 @@ from groq import Groq
 
 
 app = FastAPI(
-    title="FinPilot AI Backend",
-    description="AI-powered financial insights API",
-    version="1.0.0",
+    title="FinPilot AI + SupportFlow AI Backend",
+    description="AI-powered finance and customer support API",
+    version="1.1.0",
 )
 
 
@@ -27,25 +27,15 @@ groq_client = Groq(
 )
 
 
+# =========================
+# FINPILOT
+# =========================
+
 class AIRequest(BaseModel):
     income: float
     expenses: float
     savings: float
     top_category: str = "Unknown"
-
-
-@app.get("/")
-def root():
-    return {
-        "message": "FinPilot AI Backend is running 🚀"
-    }
-
-
-@app.get("/health")
-def health():
-    return {
-        "status": "healthy"
-    }
 
 
 @app.post("/ai")
@@ -87,4 +77,79 @@ Keep the response under 120 words.
     return {
         "success": True,
         "insight": response.choices[0].message.content,
+    }
+
+
+# =========================
+# SUPPORTFLOW AI
+# =========================
+
+class SupportRequest(BaseModel):
+    message: str
+
+
+@app.post("/support/analyze")
+def analyze_support_ticket(request: SupportRequest):
+
+    prompt = f"""
+You are SupportFlow AI, an AI customer-support assistant.
+
+Analyze this customer support message:
+
+"{request.message}"
+
+Return ONLY valid JSON with exactly these fields:
+
+{{
+    "category": "Billing | Technical | Account | Refund | General",
+    "priority": "Low | Medium | High | Critical",
+    "sentiment": "Positive | Neutral | Negative",
+    "summary": "short summary of the issue",
+    "suggested_reply": "professional reply for the support agent"
+}}
+
+Rules:
+- Category must be one of the listed categories.
+- Priority must be one of the listed priorities.
+- Sentiment must be one of the listed sentiments.
+- Keep the summary short.
+- Suggested reply should be polite, professional and useful.
+- Do not invent company policies, refunds or guarantees.
+"""
+
+    response = groq_client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        temperature=0.2,
+        max_tokens=300,
+    )
+
+    ai_result = response.choices[0].message.content
+
+    return {
+        "success": True,
+        "analysis": ai_result,
+    }
+
+
+# =========================
+# HEALTH / ROOT
+# =========================
+
+@app.get("/")
+def root():
+    return {
+        "message": "FinPilot AI + SupportFlow AI Backend is running 🚀"
+    }
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy"
     }
