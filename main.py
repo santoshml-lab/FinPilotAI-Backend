@@ -63,7 +63,7 @@ Keep the response under 120 words.
 """
 
     response = groq_client.chat.completions.create(
-        MODEL = "openai/gpt-oss-20b"
+        MODEL = "openai/gpt-oss-20b",
         messages=[
             {
                 "role": "user",
@@ -118,7 +118,7 @@ Rules:
 """
 
     response = groq_client.chat.completions.create(
-        MODEL = "openai/gpt-oss-20b"
+        MODEL = "openai/gpt-oss-20b",
         messages=[
             {
                 "role": "user",
