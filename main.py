@@ -138,6 +138,75 @@ Rules:
         "success": True,
         "analysis": ai_result,
     }
+# =========================
+# SUPPORTFLOW AI — AUTO REPLY
+# =========================
+
+class AutoReplyRequest(BaseModel):
+    customer_name: str = "Customer"
+    ticket_message: str
+    category: str = "General"
+    priority: str = "Medium"
+
+
+@app.post("/support/auto-reply")
+def generate_auto_reply(request: AutoReplyRequest):
+
+    prompt = f"""
+You are SupportFlow AI, a professional customer-support reply assistant.
+
+Generate a helpful reply to the customer.
+
+Customer name:
+{request.customer_name}
+
+Ticket category:
+{request.category}
+
+Ticket priority:
+{request.priority}
+
+Customer message:
+"{request.ticket_message}"
+
+Rules:
+- Address the customer politely.
+- Acknowledge their issue.
+- Give a useful next step when possible.
+- Do NOT invent refunds, policies, discounts, deadlines,
+  guarantees, or actions that were not provided.
+- Do not claim that an issue has been fixed unless the
+  customer-support agent has confirmed it.
+- Keep the tone professional, friendly and concise.
+- Do not use emojis.
+- Keep the reply between 60 and 120 words.
+- Return ONLY the reply text.
+"""
+
+    response = groq_client.chat.completions.create(
+        model=MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a professional customer support assistant."
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ],
+        temperature=0.3,
+        max_tokens=220,
+    )
+
+    reply = response.choices[0].message.content.strip()
+
+    return {
+        "success": True,
+        "reply": reply,
+    }
+
+
 
 
 # =========================
